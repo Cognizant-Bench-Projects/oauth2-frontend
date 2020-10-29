@@ -6,6 +6,7 @@ export class Home extends React.Component {
 
   logout() {
     this.props.setUser('');
+    this.props.setToken('');
   }
 
   render() {

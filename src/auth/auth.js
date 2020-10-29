@@ -13,40 +13,62 @@ export class Auth extends React.Component {
   }
 
   componentDidMount() {
-    this.getUser();
+    this.exchangeToken();
   }
 
-  getUser() {
+  exchangeToken() {
     const code = window.location.href.match(/code=(.*)/) && window.location.href.match(/code=(.*)/)[1];
 
     if (code) {
-      axios.get(`http://localhost:8080/api/user?code=${code}`, {
-        headers: { 
-          'Access-Control-Allow-Origin' : '*',
-          'Access-Control-Allow-Methods' : 'GET,PUT,POST,DELETE,PATCH,OPTIONS',
-        },
-      }).then(
-        response => {
-          if (!response.data) {
-            this.setState({
-              isLoading: false,
-              authFailed: true
-            })
-          }
-          else {
-            this.props.setUser(response.data.login);
-            this.setState({
-              isLoading: false
-            })
-          }
+      axios.get(`http://localhost:8080/api/exchange-token?code=${code}`, {
+      headers: { 
+        'Access-Control-Allow-Origin' : '*',
+        'Access-Control-Allow-Methods' : 'GET,PUT,POST,DELETE,PATCH,OPTIONS',
+      },
+    }).then(
+      response => {
+        const data = response.data.match(/token=(.*)&scope/);
+        if (data) {
+          const token = data[1];
+          this.getUser(token);
+        } else {
+          this.setState({
+            isLoading: false,
+            authFailed: true
+          });
         }
-      )
-    } else {
+      }
+    )} else {
       this.setState({
         isLoading: false,
         authFailed: true
       });
     }
+  }
+
+  getUser(token) {
+    axios.get(`http://localhost:8080/api/user?token=${token}`, {
+      headers: { 
+        'Access-Control-Allow-Origin' : '*',
+        'Access-Control-Allow-Methods' : 'GET,PUT,POST,DELETE,PATCH,OPTIONS',
+      },
+    }).then(
+      response => {
+        if (!response.data) {
+          this.setState({
+            isLoading: false,
+            authFailed: true
+          })
+        }
+        else {
+          this.props.setToken(token);
+          this.props.setUser(response.data.name);
+          this.setState({
+            isLoading: false
+          })
+        }
+      }
+    )
   }
 
   render() {
@@ -55,7 +77,7 @@ export class Auth extends React.Component {
     } else {
       return (
         <div>
-          {this.state.authFailed ? <Redirect to="/login" /> : <Redirect to="/home" />}
+          {this.state.authFailed ? <Redirect to="/error" /> : <Redirect to="/home" />}
         </div>
       )
     }
