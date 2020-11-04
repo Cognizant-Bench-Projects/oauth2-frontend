@@ -40,6 +40,7 @@ class App extends React.Component {
           <Route exact path="/auth">
             <Auth
               authenticated={this.state.authenticated}
+              setUser={this.setUser.bind(this)}
               setAuthenticated={this.setAuthenticated.bind(this)}
             />
           </Route>

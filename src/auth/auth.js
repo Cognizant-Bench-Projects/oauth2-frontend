@@ -1,5 +1,6 @@
 import React from 'react';
 import { Redirect } from 'react-router-dom';
+import jwt_decode from "jwt-decode";
 
 export class Auth extends React.Component {
 
@@ -12,9 +13,17 @@ export class Auth extends React.Component {
 
   componentDidMount() {
     const token = window.location.href.match(/token=(.*)/) && window.location.href.match(/token=(.*)/)[1];
+
     if (token) {
-      localStorage.setItem("accessToken", token);
-      this.props.setAuthenticated(true);
+      try {
+        const decodedJwt = jwt_decode(token);
+        this.props.setUser(decodedJwt.name);
+        localStorage.setItem("accessToken", token);
+        this.props.setAuthenticated(true);
+        console.log(decodedJwt);
+      } catch (error) {
+        console.error(error)
+      }
     }
 
     this.setState({isLoading: false})
