@@ -11,7 +11,7 @@ class App extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      token: '',
+      authenticated: false,
       user: ''
     }
   }
@@ -20,8 +20,8 @@ class App extends React.Component {
     this.setState({user: username});
   }
 
-  setToken(token) {
-    this.setState({token: token});
+  setAuthenticated(isAuthenticated) {
+    this.setState({authenticated: isAuthenticated});
   }
 
   render() {
@@ -38,10 +38,18 @@ class App extends React.Component {
             <ErrorPage />
           </Route>
           <Route exact path="/auth">
-            <Auth setUser={this.setUser.bind(this)} setToken={this.setToken.bind(this)} />
+            <Auth
+              authenticated={this.state.authenticated}
+              setAuthenticated={this.setAuthenticated.bind(this)}
+            />
           </Route>
           <Route exact path="/home">
-            <Home user={this.state.user} setUser={this.setUser.bind(this)} setToken={this.setToken.bind(this)} />
+            <Home
+              user={this.state.user}
+              authenticated={this.state.authenticated}
+              setUser={this.setUser.bind(this)}
+              setAuthenticated={this.setAuthenticated.bind(this)}
+            />
           </Route>
         </Switch>
       </Router>
