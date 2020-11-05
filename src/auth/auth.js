@@ -7,7 +7,7 @@ export class Auth extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      isLoading: true,
+      isLoading: true
     }
   }
 
@@ -20,7 +20,6 @@ export class Auth extends React.Component {
         this.props.setUser(decodedJwt.name);
         localStorage.setItem("accessToken", token);
         this.props.setAuthenticated(true);
-        console.log(decodedJwt);
       } catch (error) {
         console.error(error)
       }
