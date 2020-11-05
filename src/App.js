@@ -4,18 +4,24 @@ import { BrowserRouter as Router, Switch, Route, Redirect } from 'react-router-d
 import { Login } from './login/login'
 import { Home } from './home/home'
 import { Auth } from './auth/auth'
+import { ErrorPage } from './ErrorPage'
 
 class App extends React.Component {
 
   constructor(props) {
     super(props);
     this.state = {
+      authenticated: false,
       user: ''
     }
   }
 
   setUser(username) {
     this.setState({user: username});
+  }
+
+  setAuthenticated(isAuthenticated) {
+    this.setState({authenticated: isAuthenticated});
   }
 
   render() {
@@ -28,11 +34,23 @@ class App extends React.Component {
           <Route exact path="/login">
             <Login />
           </Route>
+          <Route exact path="/error">
+            <ErrorPage />
+          </Route>
           <Route exact path="/auth">
-            <Auth setUser={this.setUser.bind(this)} />
+            <Auth
+              authenticated={this.state.authenticated}
+              setUser={this.setUser.bind(this)}
+              setAuthenticated={this.setAuthenticated.bind(this)}
+            />
           </Route>
           <Route exact path="/home">
-            <Home user={this.state.user} setUser={this.setUser.bind(this)} />
+            <Home
+              user={this.state.user}
+              authenticated={this.state.authenticated}
+              setUser={this.setUser.bind(this)}
+              setAuthenticated={this.setAuthenticated.bind(this)}
+            />
           </Route>
         </Switch>
       </Router>

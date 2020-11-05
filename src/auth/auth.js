@@ -1,63 +1,40 @@
 import React from 'react';
-import axios from 'axios';
 import { Redirect } from 'react-router-dom';
+import jwt_decode from "jwt-decode";
 
 export class Auth extends React.Component {
 
   constructor(props) {
     super(props);
     this.state = {
-      authFailed: false,
-      isLoading: true,
+      isLoading: true
     }
   }
 
   componentDidMount() {
-    this.getUser();
-  }
+    const token = window.location.href.match(/token=(.*)/) && window.location.href.match(/token=(.*)/)[1];
 
-  getUser() {
-    const code = window.location.href.match(/code=(.*)/) && window.location.href.match(/code=(.*)/)[1];
-
-    if (code) {
-      axios.get(`http://localhost:8080/api/user?code=${code}`, {
-        headers: { 
-          'Access-Control-Allow-Origin' : '*',
-          'Access-Control-Allow-Methods' : 'GET,PUT,POST,DELETE,PATCH,OPTIONS',
-        },
-      }).then(
-        response => {
-          if (!response.data) {
-            this.setState({
-              isLoading: false,
-              authFailed: true
-            })
-          }
-          else {
-            this.props.setUser(response.data.login);
-            this.setState({
-              isLoading: false
-            })
-          }
-        }
-      )
-    } else {
-      this.setState({
-        isLoading: false,
-        authFailed: true
-      });
+    if (token) {
+      try {
+        const decodedJwt = jwt_decode(token);
+        this.props.setUser(decodedJwt.name);
+        localStorage.setItem("accessToken", token);
+        this.props.setAuthenticated(true);
+      } catch (error) {
+        console.error(error)
+      }
     }
+
+    this.setState({isLoading: false})
   }
 
-  render() {
+  render() {  
     if (this.state.isLoading) {
       return <h3>Loading...</h3>
-    } else {
-      return (
-        <div>
-          {this.state.authFailed ? <Redirect to="/login" /> : <Redirect to="/home" />}
-        </div>
-      )
-    }
+    } else return (
+      <div>
+        {this.props.authenticated ? <Redirect to="/home" /> : <Redirect to="/error" />}
+      </div>
+    )
   }
 }
